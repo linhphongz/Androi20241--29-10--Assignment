@@ -1,42 +1,74 @@
-package com.example.bai229_10
-
+package com.example.exchangemoney
 import android.os.Bundle
-import android.widget.GridView
+import android.text.Editable
+import android.text.TextWatcher
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.EditText
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var editText1: EditText
+    private lateinit var editText2: EditText
+    private lateinit var spinner1: Spinner
+    private lateinit var spinner2: Spinner
+
+    private val exchangeRates = mapOf(
+        "USD" to 1.0,
+        "VND" to 23000.0,
+        "EUR" to 0.85,
+        "JPY" to 110.0,
+        "CNY" to 6.5
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Cấu hình Edge-to-Edge nếu cần
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        editText1 = findViewById(R.id.text1)
+        editText2 = findViewById(R.id.text2)
+        spinner1 = findViewById(R.id.spinner1)
+        spinner2 = findViewById(R.id.spinner2)
+
+        // Khởi tạo adapter cho spinner1 và spinner2
+        val currencyAdapter = ArrayAdapter.createFromResource(this, R.array.currency_array1, android.R.layout.simple_spinner_item)
+        currencyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner1.adapter = currencyAdapter
+
+        val currencyAdapter2 = ArrayAdapter.createFromResource(this, R.array.currency_array2, android.R.layout.simple_spinner_item)
+        currencyAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner2.adapter = currencyAdapter2
+
+        spinner1.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: android.view.View, position: Int, id: Long) {
+                updateConversion(1)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        // Danh sách các sản phẩm mẫu
-        val products = listOf(
-            Product("iPhone 15", "$999", "Available", true),
-            Product("MacBook Pro", "$1999", "Out of stock", false),
-            Product("AirPods Pro", "$249", "Available", true),
-            Product("iPad Pro", "$799", "Available", true),
-            Product("Apple Watch", "$399", "Available", false),
-            Product("HomePod", "$299", "Out of stock", true),
-            Product("Apple TV", "$179", "Available", true),
-            Product("Magic Keyboard", "$99", "Available", false),
-            Product("iMac", "$1299", "Available", true),
-            Product("Mac Mini", "$699", "Available", false)
-            // Thêm nhiều sản phẩm nếu cần
-        )
+        spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: android.view.View, position: Int, id: Long) {
+                updateConversion(2)
+            }
 
-        // Tìm GridView và gán adapter
-        val gridView: GridView = findViewById(R.id.gridView)
-        val adapter = ProductAdapter(this, products)
-        gridView.adapter = adapter
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+    }
+
+    private fun updateConversion(chedo: Int) {
+        val amount1 = editText1.text.toString().toDoubleOrNull() ?: 0.0
+        val amount2 = editText2.text.toString().toDoubleOrNull() ?: 0.0
+        val currency1 = spinner1.selectedItem.toString()
+        val currency2 = spinner2.selectedItem.toString()
+
+        if (chedo == 2 ) {
+            val convertedAmount = amount1 * (exchangeRates[currency2] ?: 1.0) / (exchangeRates[currency1] ?: 1.0)
+            editText1.setText(String.format("%.2f", convertedAmount))
+        } else if (chedo == 1 ) {
+            val convertedAmount = amount2 * (exchangeRates[currency1] ?: 1.0) / (exchangeRates[currency2] ?: 1.0)
+            editText2.setText(String.format("%.2f", convertedAmount))
+        }
     }
 }
