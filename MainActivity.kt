@@ -7,7 +7,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
-
+ 
 class MainActivity : AppCompatActivity() {
     private lateinit var editText1: EditText
     private lateinit var editText2: EditText
